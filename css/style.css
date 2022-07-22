@@ -54,8 +54,11 @@ body {
 body {
     display: grid;
     grid-template-columns: 100vh 1fr;
+    grid-template-rows: 50vh 1fr;
 }
 .world {
+    grid-row-start: 1;
+    grid-row-end: 2;
     position: relative;
     aspect-ratio: 1 / 1;
     background-color: beige;
@@ -84,18 +87,26 @@ body {
     width: 16px;
     aspect-ratio: 1 / 1;
     position: absolute;
-    top: calc(50% - 12px);
+    top: calc((100% - 20px) / 2);
     left: 0;
     transform: rotate(90deg);
     font-size: 16px;
 }
 
+.goo.hunter {
+    border-radius: 30%;
+}
+
 .chart {
-    height: 100vh;
+    height: 50vh;
     background-color: #333333;
     display: flex;
     align-items: flex-end;
     overflow-x: scroll;
+}
+
+.chart-p {
+    grid-column-start: 2;
 }
 
 .chart-bar {

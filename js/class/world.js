@@ -1,40 +1,41 @@
-import { Goo } from './goo.js';
+import { Hunter } from './hunter.js';
+import { Prey } from './prey.js';
 
 export class World {
-    constructor(population) {
+    constructor(nbHunters, nbPreys) {
         this.goos = [];
-        this.createPopulation(population);
+        this.createPopulation(nbHunters, nbPreys);
     }
 
-    createPopulation(nb) {
-        for (let i = 0; i < nb; i++) {
-            this.goos.push(new Goo({world: this}));
+    createPopulation(nbHunters, nbPreys) {
+        for (let i = 0; i < nbHunters; i++) {
+            this.goos.push(new Hunter({world: this}));
+        }
+        for (let i = 0; i < nbPreys; i++) {
+            this.goos.push(new Prey({world: this}));
         }
     }
 
-    run() {
+    async run() {
         setInterval(() => {
             this.displayNbOfGoos();
             this.goos.forEach(async (g, i) => {
                 await g.lookAround();
                 await g.decideMove();
+                g.cloneOrDieIfNecessary();
             });
-            this.killSmallestGoos();
-            this.copyBiggestGoos();
-            this.burryDeadGoos();
         }, 50)
     }
 
     displayNbOfGoos() {
-        this.addChart(this.goos.length);
+        this.addChart(this.getNbHunters(), this.getNbPreys());
     }
 
-    killSmallestGoos() {
-        this.goos.filter(g => g.size < 0.01).forEach(g => g.kill());
+    getNbHunters() {
+        return this.goos.filter(g => g.getType() === "Hunter").length;
     }
-
-    copyBiggestGoos() {
-        this.goos.filter(g => g.size > 8).forEach(g => this.addGoo(g.getCopy()));
+    getNbPreys() {
+        return this.goos.filter(g => g.getType() === "Prey").length;
     }
 
     addGoo(goo) {
@@ -45,20 +46,19 @@ export class World {
         this.goos = this.goos.filter(g => g.isAlive);
     }
 
-    getGoosAt(pos) {
-        return this.getGoosAround(pos, 2);
-    }
-    getGoosNear(pos) {
-        return this.getGoosAround(pos, 5);
-    }
-
     getGoosAround(pos, distance) {
         return this.goos.filter(g => g.getDistanceFromPos(pos) < distance);
     }
 
-    addChart(value) {
-        document.getElementById("nb").textContent = value;
-        const chart = document.getElementById("chart");
+    addChart(nbHunters, nbPreys) {
+        this.addChartHunters(nbHunters);
+        this.addChartPreys(nbPreys);
+    }
+
+    
+    addChartHunters(value) {
+        document.getElementById("nb-hunters").textContent = value;
+        const chart = document.getElementById("chart-h");
         const li = document.createElement("li");
         li.className = "chart-bar";
         li.style.height = value +"px";
@@ -68,4 +68,22 @@ export class World {
             chart.firstChild.remove();
         }
     }
+    
+    addChartPreys(value) {
+        document.getElementById("nb-preys").textContent = value;
+        const chart = document.getElementById("chart-p");
+        const li = document.createElement("li");
+        li.className = "chart-bar";
+        li.style.height = value +"px";
+        li.setAttribute("title", value);
+        chart.appendChild(li);
+        if (chart.children.length > 200) {
+            chart.firstChild.remove();
+        }
+    }
+
+    isFull() {
+        return this.goos.length > 200;
+    }
+
 }

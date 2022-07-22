@@ -20,4 +20,12 @@ export class Synapse {
     updateWeight(error) {
         this.weight -= .5 * this.neuronTo.getError() * this.neuronFrom.getOutput();
     }
+    
+    exportDatas() {
+        return {
+            weight: this.weight,
+            neuronFromIndex: this.neuronFrom.index,
+            neuronToIndex: this.neuronTo.index
+        }
+    }
 }

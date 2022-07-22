@@ -3,12 +3,11 @@ import { Layer } from './layer.js';
 export class Brain {
     constructor() {
         this.layers = [
-            new Layer({length:15}),
-            new Layer({length:12}),
+            new Layer({length:23}),
+            new Layer({length:18}),
             new Layer({length:10}),
             new Layer({length:8}),
             new Layer({length:6}),
-            new Layer({length:4}),
             new Layer({length:2})
         ];
         this.connectAllLayers();
@@ -120,4 +119,12 @@ export class Brain {
         });
         return copy;
     }
+
+    exportDatas() {
+        return {
+            nbLayers: this.countLayers(),
+            layers: this.layers.map(l => l.exportDatas())
+        }
+    }
+
 }

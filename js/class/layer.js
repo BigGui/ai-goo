@@ -14,7 +14,7 @@ export class Layer {
 
     createNeurons() {
         for (let i = 0; i < this.length; i++) {
-            const n = new Neuron();
+            const n = new Neuron(i);
             this.neurons.push(n);
         }
     }
@@ -56,5 +56,12 @@ export class Layer {
 
     displayAll() {
         this.neurons.forEach(n => console.log(n));
+    }
+
+    exportDatas() {
+        return {
+            length: this.length,
+            neurons: this.neurons.map(n => n.exportDatas())
+        }
     }
 }

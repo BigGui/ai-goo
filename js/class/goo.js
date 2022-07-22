@@ -11,15 +11,25 @@ export class Goo {
         this.updatePosition();
         this.lastMove = [0, 0];
         this.movement = [0, 0];
-        this.eyes = [0, 0, 0, 0, 0, 0, 0, 0];
-        this.size = 1;
+        this.eyes = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        this.size = 3;
         this.isAlive = true;
         this.acuity = 10;
+        const d = new Date();
+        this.lastClone = d.getTime();
+        this.increaseSpeed = .05;
+        this.decreaseSpeed = .2;
+        this.direction = 0
     } 
+
+    getType() {
+        return this.constructor.name;
+    }
 
     kill() {
         this.isAlive = false;
         this.element.remove();
+        this.world.burryDeadGoos();
     }
 
     getRandomPosition() {
@@ -33,20 +43,21 @@ export class Goo {
     }
 
     increase() {
-        this.size += .05;
-        if (this.size > 10) this.size = 10;
+        this.size += this.increaseSpeed;
+        this.size = Math.min(this.size, 6.5);
         this.updateSize();
     }
 
     decrease() {
-        this.size -= .2;
+        this.size -= this.decreaseSpeed;
         if (this.size < 0) this.size = 0;
         this.updateSize();
     }
 
     createDomElement() {
         this.element = document.createElement("div");
-        this.element.className = "goo";
+        this.element.classList.add("goo")
+        this.element.classList.add(this.getType().toLowerCase())
         document.getElementById("world").appendChild(this.element);
         this.getRandomColor();
     }
@@ -55,30 +66,9 @@ export class Goo {
         return this.position;
     }
 
-    move(m) {
-        this.lastMove = m;
-        this.movement[0] = this.normalizeMovement(this.movement[0] + m[0]);
-        this.movement[1] = this.normalizeMovement(this.movement[1] + m[1]);
-        this.position[0] = this.normalizePosition(this.position[0] + this.movement[0]);
-        this.position[1] = this.normalizePosition(this.position[1] + this.movement[1]);
-        this.updateEyesDirection(this.getDirection(this.movement));
+    setPosition(position) {
+        this.position = position;
         this.updatePosition();
-    }
-
-    getDirection(move) {
-        return (Math.atan2(move[1], move[0]) * 180 / Math.PI) + 180;
-    }
-
-    updateEyesDirection(angle) {
-        this.element.style.transform = `rotate(${angle}deg)`;
-    }
-
-    normalizeMovement(value) {
-        return value%2
-    }
-
-    normalizePosition(value) {
-        return Math.max(Math.min(value, 100), 0);
     }
 
     updatePosition() {
@@ -86,27 +76,91 @@ export class Goo {
         this.element.style.top = `${this.position[1]}%`;
     }
 
+    isPositionAvailable(position) {
+        return this.world.goos.filter(g => g.isInMyBody(position) && g !== this).length === 0;
+    }
+
+    move(m) {
+        this.lastMove = [...this.movement];
+
+        this.movement[0] = this.normalizeMovement(this.movement[0] + m[0], this.position[0]);
+        this.movement[1] = this.normalizeMovement(this.movement[1] + m[1], this.position[1]);
+
+        // let i = 0;
+        // while (!this.isPositionAvailable(this.getNewPosition(this.movement)) && i < 20) {
+        //     this.movement = this.movement.map(x => x*.8);
+        //     i++;
+        // }
+
+        this.position = this.getNewPosition(this.movement);
+
+        this.updateEyesDirection(this.getDirection(this.movement));
+        this.updatePosition();
+
+        return this.movement.map((x, i) => x - this.lastMove[i]);
+    }
+
+    getNewPosition(movement) {
+        return this.position.map((x, i) => this.normalizePosition(x + movement[i]));
+    }
+
+    getDirection(move) {
+        this.direction = (Math.atan2(move[1], move[0]) * 180 / Math.PI) + 180;
+        return this.direction;
+    }
+
+    normalizeAngle(angle) {
+        if (angle < 0) return this.normalizeAngle(360 + angle%360);
+        return angle%360;
+    }
+
+    updateEyesDirection(angle) {
+        this.element.style.transform = `rotate(${angle}deg)`;
+    }
+
+    normalizeMovement(move, position) {
+        if (position + move < 0) move = position * -1;
+        else if (position + move > 100) move = 100 - position;
+        
+        return move%this.maxSpeed;
+    }
+
+    normalizePosition(value) {
+        return Math.max(Math.min(value, 100), 0);
+    }
+
     getInput() {
         return [this.size, ...this.movement, ...this.lastMove, ...this.position.map(x => x/100), ...this.eyes];
     }
 
     async lookAround() {
-        this.eyes = [0, 0, 0, 0, 0, 0, 0, 0];
-
-        const posList = this.getGoosAroundMe(this.acuity).map(g => g.getPosition());
-
-        if (posList.length === 0) return this.eyes;
-    
-        posList.forEach(pos => {
-            const i = this.getIndexFromAngle(this.getAngleFromPos(pos));
-            this.eyes[i] += 1 - (this.getDistanceFromPos(pos) / this.acuity);
-        });
-
+        this.eyes = [...this.lookAroundForType("Prey"), ...this.lookAroundForType("Hunter")];
         return this.eyes;
     }
 
-    getGoosAroundMe(distance) {
-        return this.world.getGoosAround(this.getPosition(), distance).filter(g => g !== this);
+    lookAroundForType(type) {
+        const eyes = [0, 0, 0, 0, 0, 0, 0, 0];
+        const posList = this.getGoosAroundMe(this.acuity, type).map(g => g.getPosition());
+    
+        if (posList.length === 0) return eyes;
+
+        const views = this.getViewAngles();
+
+        posList.forEach(pos => {
+            const a = this.getAngleFromPos(pos);
+            if (!this.isAngleBetween(a, views[0], views[7])) return;
+            const i = this.getIndexFromAngleViews(a, views);
+            if (eyes[i] === undefined) return;
+            eyes[i] += 1 - (this.getDistanceFromPos(pos) / this.acuity);
+        });
+
+        return eyes;
+    }
+
+    getGoosAroundMe(distance, type) {
+        const goos = this.world.getGoosAround(this.getPosition(), distance).filter(g => g !== this && g.isAlive);
+        if (type === undefined) return goos;
+        return goos.filter(g => g.getType() === type);
     }
 
     getDistanceFromPos(pos) {
@@ -125,51 +179,29 @@ export class Goo {
         return a.length;
     }
 
-    async decideMove() {
-        this.move(await this.brain.askAnswer(this.getInput()));
-
-        if (this.getGoosAroundMe(this.acuity / 2).length > 0) {
-            await this.runAway();
-        }
-
-        if (this.getGoosAroundMe(2).length > 0) {
-            this.decrease();
-        } else {
-            this.increase();
+    getIndexFromAngleViews(angle, views) {
+        const firstAngle = views[0];
+        angle = this.normalizeAngle(angle - firstAngle);
+        views = views.map(a => this.normalizeAngle(a - firstAngle))
+        for(const i in views) {
+            if (angle < views[i]) return i;
         }
     }
 
-    async runAway() {
-        await this.brain.learn(this.getOpositeMove());
-        // await this.brain.learn(this.moveAwayFromNearest().map(x => x < 0 ? x - Math.random() : x + Math.random()));
+    getViewAngles() {
+        const l = [];
+        let a = this.viewAngle / -2;
+        while(l.length < 8) {
+            l.push(this.normalizeAngle(a + this.direction));
+            a += this.viewAngle / 8;
+        }
+
+        this.viewAngleRange = [l[0], l[l.length - 1]];
+        return l
     }
 
-    moveAwayFromNearest() {
-        const nearestGoo = this.getNearestGoo();
-        return [(nearestGoo.position[0] - this.position[0]) * -5, (nearestGoo.position[1] - this.position[1]) * -5];
-    }
-
-    getNearestGoo() {
-        let minDist;
-        let nearestGoo;
-        this.world.goos.forEach(g => {
-            if (g === this) return;
-            const d = g.getDistanceFromPos(this.position);
-            if (d < minDist || minDist === undefined) {
-                nearestGoo = g;
-                minDist = d;
-            }
-        });
-
-        return nearestGoo;
-    }
-
-    getOpositeMove() {
-        return this.lastMove.map(v => {
-            v *= -6;
-            if (v < 0) return v - Math.random();
-            return v + Math.random();
-        });
+    isAngleBetween(angle, min, max) {
+        return this.normalizeAngle(angle - min) <= this.normalizeAngle(max - min);
     }
 
     getRandomColor() {
@@ -186,26 +218,85 @@ export class Goo {
     }
 
     changeColorRandom() {
-        this.color = this.color.map(c => Math.min(Math.max(c * this.getPosOrNeg(), 0), 255));
+        this.color = this.color.map(c => {
+            c += this.getMoreOrLess();
+            if (c < 0) return 256 + c;
+            return c%256;
+        });
         this.displayColor();
     }
 
-    getPosOrNeg() {
-        return this.getArrayRandomValue([.8, 1.2]);
+    getMoreOrLess() {
+        return this.getArrayRandomValue([-5, 5]);
     }
 
     getArrayRandomValue(array) {
-        const i = parseInt(Math.random()*array.length);
-        return array[i];
+        return array[parseInt(Math.random()*array.length)];
     }
 
-    getCopy() {
-        const copy = new Goo({world: this.world});
+    getRandomMove() {
+        return this.position.map(v => {
+            if (v === 0) return Math.random() * 3;
+            if (v === 100) return Math.random() * -3;
+            return v + (Math.random() * (v / Math.abs(v))) || 0;
+        });
+    }
+
+    isStatic() {
+        return this.lastMove[0] < 0.01 && this.lastMove[1] < 0.01;
+    }
+
+    configCopy(copy) {
+        const d = new Date();
+        this.lastClone = d.getTime();
         copy.color = this.color;
         copy.changeColorRandom();
         this.size /= 2;
         copy.size = this.size;
+        copy.setPosition(this.position.map(x => this.normalizePosition(x + Math.random() * 8 - 4)));
         copy.brain = this.brain.getCopy();
         return copy;
+    }
+
+    cloneOrDieIfNecessary() {
+        if (!this.isAlive) return;
+
+        if (this.size < 0.01) {
+            this.kill();
+            return;
+        }
+
+        const d = new Date();
+        if (this.size < 6 || d.getTime() - this.lastClone  < 2000 || this.world.isFull()) return;
+        
+        this.world.addGoo(this.getCopy());
+    }
+
+    isInMyBody(position) {
+        return this.getDistanceFromPos(position) < this.size / 2;
+    }
+
+    async runAway() {
+        await this.brain.learn(this.getOpositeMove());
+    }
+
+    getOpositeMove() {
+        return this.lastMove.map((v, i) => {
+            if (this.position[i] === 0) return Math.abs(v) + Math.random();
+            if (this.position[i] === 100) return (Math.abs(v) + Math.random()) * -1;
+            return v + (Math.random() * (v / Math.abs(v))) || 0;
+        });
+    }
+
+    exportDatas() {
+        return {
+            type: this.getType(),
+            color: this.color,
+            size: this.size,
+            acuity: this.acuity,
+            increaseSpeed: this.increaseSpeed,
+            decreaseSpeed: this.decreaseSpeed,
+            brain: this.brain.exportDatas()
+        }
     }
 }

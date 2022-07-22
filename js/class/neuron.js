@@ -1,7 +1,8 @@
 import { Synapse } from './synapse.js';
 
 export class Neuron {
-    constructor() {
+    constructor(index) {
+        this.index = index;
         this.synpases = [];
         this.backSynapses = [];
         this.act = {a:1, b:0};
@@ -105,4 +106,13 @@ export class Neuron {
     updateSynapses() {
         this.backSynapses.forEach(synapse => synapse.updateWeight())
     }
+
+    exportDatas() {
+        return {
+            index: this.index,
+            activation: this.act,
+            synapses: this.synpases.map(s => s.exportDatas())
+        }
+    }
+
 }
