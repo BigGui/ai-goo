@@ -38,7 +38,7 @@ export class Hunter extends Goo {
         //     await this.runAway();
         }
         else if (this.isStatic()) {
-            await this.brain.learn(this.moveToCenter());
+            await this.brain.learn(this.moveRandomly());
         }
 
         return this.decrease();
@@ -52,6 +52,11 @@ export class Hunter extends Goo {
 
     moveToCenter() {
         return this.position.map(x => Math.max(Math.min(50 - x, 2), -2));
+    }
+
+    moveRandomly() {
+        const randPos = this.getRandomPosition();
+        return [Math.max(Math.min(this.position[0] - this.position[0], 2), -2), Math.max(Math.min(this.position[1] - this.position[1], 2), -2)];
     }
 
     async learnToFollowPrey(prey) {
