@@ -5,6 +5,10 @@ export class World {
     constructor(nbHunters, nbPreys) {
         this.goos = [];
         this.createPopulation(nbHunters, nbPreys);
+        this.storage = {
+            Hunter: [],
+            Prey: []
+        };
     }
 
     createPopulation(nbHunters, nbPreys) {
@@ -84,6 +88,17 @@ export class World {
 
     isFull() {
         return this.goos.length > 200;
+    }
+
+    addToStorage(gooDatas) {
+        this.storage[gooDatas.type].push(gooDatas);
+        this.storage[gooDatas.type].sort(this.compareByAge);
+        this.storage[gooDatas.type] = this.storage[gooDatas.type].slice(0, 4);
+        console.log(gooDatas.type, this.storage[gooDatas.type].map(g => g.age));
+    }
+
+    compareByAge(a, b) {
+        return b.age - a.age;
     }
 
 }

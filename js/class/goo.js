@@ -34,6 +34,7 @@ export class Goo {
     kill() {
         this.isAlive = false;
         this.element.remove();
+        this.world.addToStorage(this.exportDatas());
         this.world.burryDeadGoos();
     }
 
@@ -301,7 +302,8 @@ export class Goo {
             acuity: this.acuity,
             increaseSpeed: this.increaseSpeed,
             decreaseSpeed: this.decreaseSpeed,
-            brain: this.brain.exportDatas()
+            brain: this.brain.exportDatas(),
+            age: this.getAge()
         }
     }
 }
