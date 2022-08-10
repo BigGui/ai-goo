@@ -20,10 +20,15 @@ export class Goo {
         this.increaseSpeed = .05;
         this.decreaseSpeed = .2;
         this.direction = 0
+        this.birth = new Date();
     } 
 
     getType() {
         return this.constructor.name;
+    }
+
+    getAge() {
+        return parseInt((new Date() - this.birth) / 1000);
     }
 
     kill() {
