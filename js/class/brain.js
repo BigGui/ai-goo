@@ -1,15 +1,28 @@
 import { Layer } from './layer.js';
 
 export class Brain {
-    constructor() {
-        this.layers = [
-            new Layer({length:23}),
-            new Layer({length:18}),
-            new Layer({length:10}),
-            new Layer({length:8}),
-            new Layer({length:6}),
-            new Layer({length:2})
-        ];
+    constructor(params) {
+        if (params && params.datas.layers) {
+            this.layers = [];
+            params.datas.layers.forEach(l => {
+                this.layers.push(new Layer({
+                    length: l.length,
+                    datas: l
+                }));
+
+            });
+        }
+        else {
+            this.layers = [
+                new Layer({length:23}),
+                new Layer({length:18}),
+                new Layer({length:10}),
+                new Layer({length:8}),
+                new Layer({length:6}),
+                new Layer({length:2})
+            ];
+        }
+
         this.connectAllLayers();
         this.errorStats = [];
     }

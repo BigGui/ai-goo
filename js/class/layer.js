@@ -3,9 +3,23 @@ import { Neuron } from './neuron.js';
 export class Layer {
     constructor(params) {
         this.neurons = [];
-        this.length = params.length || 10;
         this.isInput = false;
-        this.createNeurons();
+        this.synapsesDatas = [];
+
+        if (params && params.datas) {
+            this.length = params.datas.neurons.length;
+            this.createNeuronsFromDatas(params.datas.neurons);
+            params.datas.neurons.forEach(n => {
+                n.synapses.forEach(s => {
+                    if (this.synapsesDatas[s.neuronFromIndex] === undefined) this.synapsesDatas[s.neuronFromIndex] = [];
+                    this.synapsesDatas[s.neuronFromIndex][s.neuronToIndex] = s.weight;
+                })
+            });
+            console.log(this.synapsesDatas);
+        } else {
+            this.length = params.length || 10;
+            this.createNeurons();
+        }
     }
 
     getLength() {
@@ -17,6 +31,13 @@ export class Layer {
             const n = new Neuron(i);
             this.neurons.push(n);
         }
+    }
+
+    createNeuronsFromDatas(neuronsDatas) {
+        neuronsDatas.forEach(datas => {
+            const n = new Neuron(datas.index, {datas: datas});
+            this.neurons.push(n);
+        });
     }
 
     defineInputLayer(values) {
@@ -34,7 +55,11 @@ export class Layer {
 
     connectTo(nextlayer) {
         this.neurons.forEach(neuron => {
-            nextlayer.neurons.forEach(n => neuron.connectTo(n));
+            nextlayer.neurons.forEach(n => {
+                let weight;
+                if (this.synapsesDatas.length) weight = this.synapsesDatas[neuron.index][n.index];
+                neuron.connectTo(n, weight);
+            });
         });
     }
 

@@ -1,7 +1,7 @@
 import { Synapse } from './synapse.js';
 
 export class Neuron {
-    constructor(index) {
+    constructor(index, params) {
         this.index = index;
         this.synpases = [];
         this.backSynapses = [];
@@ -9,7 +9,13 @@ export class Neuron {
         this.isInput = false;
         this.isOutput = false;
         this.initialize();
-        this.setRandomActivation();
+
+        if (params && params.datas) {
+            this.act.a = params.datas.activation.a;
+            this.act.b = params.datas.activation.b;
+        } else {
+            this.setRandomActivation();
+        }
     }
 
     initialize() {
@@ -68,12 +74,13 @@ export class Neuron {
         this.backSynapses.push(synpase);
     }
 
-    connectTo(neuron) {
+    connectTo(neuron, weight) {
         const s = new Synapse({
             neuronFrom: this,
-            neuronTo: neuron
+            neuronTo: neuron,
+            weight: weight || 0
         });
-        s.setRandomWeight();
+        if (weight === undefined) s.setRandomWeight();
         this.addBackSynapse(s);
         neuron.addSynapse(s);
     }
