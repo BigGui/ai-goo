@@ -5,6 +5,7 @@ export class Goo {
         this.world = params.world || null;
         this.element = null;
         this.color = [0, 0, 0];
+        this.prevPosition = [0, 0];
         this.position = this.getRandomPosition();
         this.createDomElement();
         this.updatePosition();
@@ -66,6 +67,12 @@ export class Goo {
         this.updateSize();
     }
 
+    decreaseMore() {
+        this.size -= this.decreaseSpeed * 4;
+        if (this.size < 0) this.size = 0;
+        this.updateSize();
+    }
+
     createDomElement() {
         this.element = document.createElement("div");
         this.element.classList.add("goo")
@@ -93,6 +100,7 @@ export class Goo {
     }
 
     move(m) {
+        this.prevPosition = [...this.position];
         this.lastMove = [...this.movement];
 
         this.movement = [
@@ -104,8 +112,6 @@ export class Goo {
 
         this.updateEyesDirection(this.getDirection(this.movement));
         this.updatePosition();
-
-        return this.movement.map((x, i) => x - this.lastMove[i]);
     }
 
     getNewPosition(movement) {
@@ -133,6 +139,10 @@ export class Goo {
         return move%this.maxSpeed;
     }
 
+    moveToLearnIfStucked(intention) {
+        return intention.map((x, i) => x != this.movement[i] ? x * -1 : x);
+    }
+
     normalizePosition(value) {
         return Math.max(Math.min(value, 100), 0);
     }
@@ -143,7 +153,7 @@ export class Goo {
     }
 
     getInput() {
-        return [this.size, ...this.movement, ...this.lastMove, ...this.position.map(x => x/100), ...this.eyes];
+        return [this.size, ...this.movement, ...this.lastMove, ...this.position.map(x => x/100), this.direction, ...this.eyes];
     }
 
     async lookAround() {
@@ -257,6 +267,14 @@ export class Goo {
 
     isStatic() {
         return Math.max(...this.lastMove) < 0.01;
+    }
+
+    isInACorner() {
+        return this.position.map(x => [0, 100].includes(x)).reduce((a, b) => a && b);
+    }
+
+    moveToCenter() {
+        return this.position.map(x => Math.max(Math.min(50 - x, 2), -2));
     }
 
     configCopy(copy) {

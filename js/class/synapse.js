@@ -14,7 +14,7 @@ export class Synapse {
     }
 
     setRandomWeight() {
-        this.weight = Math.random();
+        this.weight = Math.random() * 2 - 1;
     }
 
     updateWeight(error) {

@@ -14,7 +14,7 @@ export class Brain {
         }
         else {
             this.layers = [
-                new Layer({length:23}),
+                new Layer({length:24}),
                 new Layer({length:18}),
                 new Layer({length:10}),
                 new Layer({length:8}),

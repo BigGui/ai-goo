@@ -18,7 +18,8 @@ export class Hunter extends Goo {
     }
 
     async decideMove() {
-        this.move(await this.brain.askAnswer(this.getInput()));
+        const intention = await this.brain.askAnswer(this.getInput());
+        this.move(intention);
 
         const preys = this.getGoosAroundMe(this.acuity, "Prey")
             .filter(g => {
@@ -35,24 +36,17 @@ export class Hunter extends Goo {
             if (this.getDistanceFromPos(preys[0].getPosition()) < (this.size + preys[0].size)/2) {
                 return this.eatPrey(preys[0]);
             }
-        // } else if (this.getGoosAroundMe(this.acuity, "Hunter").filter(g => this.getDistanceFromPos(g.getPosition()) < (this.size + g.size)/2).length > 0) {
-        //     await this.runAway();
         }
-        else if (this.isStatic()) {
-            await this.brain.learn(this.moveRandomly());
+        else if (this.movement[0] != intention[0] || this.movement[1] != intention[1] ) {
+            await this.brain.learn(this.moveToLearnIfStucked(intention));
         }
 
         return this.decrease();
     }
 
-
     eatPrey(prey) {
         prey.kill();
         this.increase();
-    }
-
-    moveToCenter() {
-        return this.position.map(x => Math.max(Math.min(50 - x, 2), -2));
     }
 
     async learnToFollowPrey(prey) {

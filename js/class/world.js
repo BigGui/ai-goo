@@ -6,6 +6,7 @@ export class World {
         this.goos = [];
         this.initStorage();
         this.createPopulation(nbHunters, nbPreys);
+        this.begining = 0;
     }
 
     createPopulation(nbHunters, nbPreys) {
@@ -26,13 +27,16 @@ export class World {
     }
 
     async run() {
-        setInterval(() => {
+        this.begining = new Date();
+        const timer = setInterval(() => {
             this.displayNbOfGoos();
             this.goos.forEach(async (g, i) => {
                 await g.lookAround();
                 await g.decideMove();
                 g.cloneOrDieIfNecessary();
             });
+            this.updateTime();
+            if (this.goos.length == 0) clearInterval(timer);
         }, 50)
     }
 
@@ -62,6 +66,21 @@ export class World {
     addChart(nbHunters, nbPreys) {
         this.addChartHunters(nbHunters);
         this.addChartPreys(nbPreys);
+    }
+
+    updateTime() {
+        document.getElementById("time").textContent = this.getTimeIntext();
+    }
+
+    getTimeIntext() {
+        let t = parseInt((new Date() - this.begining) / 1000);
+        const scales = [60, 60, 24];
+        const unit = ["s", "min", "h", "j"];
+        return scales.map((s, i) => {
+            const v = t%s;
+            t = parseInt(t/s);
+            return v > 0 ? `${v}${unit[i]}` : "";
+        }).reverse().join(" ");
     }
 
     
