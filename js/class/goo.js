@@ -95,14 +95,10 @@ export class Goo {
     move(m) {
         this.lastMove = [...this.movement];
 
-        this.movement[0] = this.normalizeMovement(this.movement[0] + m[0], this.position[0]);
-        this.movement[1] = this.normalizeMovement(this.movement[1] + m[1], this.position[1]);
-
-        // let i = 0;
-        // while (!this.isPositionAvailable(this.getNewPosition(this.movement)) && i < 20) {
-        //     this.movement = this.movement.map(x => x*.8);
-        //     i++;
-        // }
+        this.movement = [
+            this.normalizeMovement(this.movement[0] + m[0], this.position[0]),
+            this.normalizeMovement(this.movement[1] + m[1], this.position[1])
+        ];
 
         this.position = this.getNewPosition(this.movement);
 
