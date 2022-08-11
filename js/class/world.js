@@ -100,10 +100,16 @@ export class World {
     }
 
     addToStorage(gooDatas) {
+        if (gooDatas.score < this.getMinScore(gooDatas.type)) return;
         this.storage[gooDatas.type].push(gooDatas);
         this.storage[gooDatas.type].sort(this.compareByScore);
         this.storage[gooDatas.type] = this.storage[gooDatas.type].slice(0, 10);
         this.updateLocalStorage();
+        console.log(`New ${gooDatas.type} added to storage.`);
+    }
+
+    getMinScore(type) {
+        return this.storage[type].reduce((a, b) => a.score < b.score ? a : b).score;
     }
 
     compareByScore(a, b) {
