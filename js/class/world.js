@@ -15,18 +15,14 @@ export class World {
 
     createGooPopulation(type, nb) {
         let params = {};
+        const storageLength = this.storage[type].length;
         for (let i = 0; i < nb; i++) {
             params = {world: this};
-            if (this.storage[type].length > 0) params.datas = this.getRandomDataFromStorage(type);
+            if (storageLength > 0) params.datas = this.storage[type][i%storageLength];
 
             if (type === "Hunter") this.goos.push(new Hunter(params));
             else if (type === "Prey") this.goos.push(new Prey(params));
         }
-    }
-
-    getRandomDataFromStorage(type) {
-        const i = parseInt(this.storage[type].length * Math.random());
-        return this.storage[type][i];
     }
 
     async run() {
