@@ -11,12 +11,6 @@ export class World {
     createPopulation(nbHunters, nbPreys) {
         this.createGooPopulation("Hunter", nbHunters);
         this.createGooPopulation("Prey", nbPreys);
-        // for (let i = 0; i < nbHunters; i++) {
-        //     this.goos.push(new Hunter({world: this}));
-        // }
-        // for (let i = 0; i < nbPreys; i++) {
-        //     this.goos.push(new Prey({world: this}));
-        // }
     }
 
     createGooPopulation(type, nb) {
