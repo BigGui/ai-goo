@@ -13,6 +13,7 @@ export class Hunter extends Goo {
     }
     getCopy() {
         const copy = new Hunter({world: this.world});
+        this.childrenNb++;
         return this.configCopy(copy);
     }
 

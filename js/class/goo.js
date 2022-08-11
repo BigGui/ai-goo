@@ -18,6 +18,7 @@ export class Goo {
         this.lastClone = d.getTime();
         this.direction = 0
         this.birth = new Date();
+        this.childrenNb = 0;
         
         if (params.datas) {
             this.importDatas(params.datas);
@@ -308,8 +309,13 @@ export class Goo {
             increaseSpeed: this.increaseSpeed,
             decreaseSpeed: this.decreaseSpeed,
             brain: this.brain.exportDatas(),
-            age: this.getAge()
+            age: this.getAge(),
+            score: this.getScore()
         }
+    }
+
+    getScore() {
+        return this.getAge() * (this.childrenNb + 1);
     }
 
     importDatas(datas) {

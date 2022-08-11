@@ -14,6 +14,7 @@ export class Prey extends Goo {
 
     getCopy() {
         const copy = new Prey({world: this.world});
+        this.childrenNb++;
         return this.configCopy(copy);
     }
 

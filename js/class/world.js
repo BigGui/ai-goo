@@ -101,14 +101,13 @@ export class World {
 
     addToStorage(gooDatas) {
         this.storage[gooDatas.type].push(gooDatas);
-        this.storage[gooDatas.type].sort(this.compareByAge);
+        this.storage[gooDatas.type].sort(this.compareByScore);
         this.storage[gooDatas.type] = this.storage[gooDatas.type].slice(0, 10);
-        // console.log(gooDatas.type, this.storage[gooDatas.type].map(g => g.age));
         this.updateLocalStorage();
     }
 
-    compareByAge(a, b) {
-        return b.age - a.age;
+    compareByScore(a, b) {
+        return b.score - a.score;
     }
 
     updateLocalStorage() {
