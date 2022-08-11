@@ -55,11 +55,6 @@ export class Hunter extends Goo {
         return this.position.map(x => Math.max(Math.min(50 - x, 2), -2));
     }
 
-    moveRandomly() {
-        const randPos = this.getRandomPosition();
-        return [Math.max(Math.min(this.position[0] - this.position[0], 2), -2), Math.max(Math.min(this.position[1] - this.position[1], 2), -2)];
-    }
-
     async learnToFollowPrey(prey) {
         await this.brain.learn(this.getMoveToFollowPrey(prey));
     }

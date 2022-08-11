@@ -137,6 +137,11 @@ export class Goo {
         return Math.max(Math.min(value, 100), 0);
     }
 
+    moveRandomly() {
+        const randPos = this.getRandomPosition();
+        return [Math.max(Math.min(this.position[0] - this.position[0], 2), -2), Math.max(Math.min(this.position[1] - this.position[1], 2), -2)];
+    }
+
     getInput() {
         return [this.size, ...this.movement, ...this.lastMove, ...this.position.map(x => x/100), ...this.eyes];
     }
@@ -251,7 +256,7 @@ export class Goo {
     }
 
     isStatic() {
-        return this.lastMove[0] < 0.01 && this.lastMove[1] < 0.01;
+        return Math.max(...this.lastMove) < 0.01;
     }
 
     configCopy(copy) {

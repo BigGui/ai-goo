@@ -28,6 +28,9 @@ export class Prey extends Goo {
         if (hunters.length > 0 && this.getDistanceFromPos(hunters[0].getPosition()) < this.acuity / 2) {
             await this.learnToRunAwayHunter(hunters[0]);
         }
+        else if (this.isStatic()) {
+            await this.brain.learn(this.moveRandomly());
+        }
         // else if (this.getGoosAroundMe(this.acuity, "Prey").filter(g => this.getDistanceFromPos(g.getPosition()) < (this.size + g.size)/2).length > 0) {
         //     await this.runAway();
         // }
