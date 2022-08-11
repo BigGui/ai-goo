@@ -9,13 +9,7 @@ export class Layer {
         if (params && params.datas) {
             this.length = params.datas.neurons.length;
             this.createNeuronsFromDatas(params.datas.neurons);
-            params.datas.neurons.forEach(n => {
-                n.synapses.forEach(s => {
-                    if (this.synapsesDatas[s.neuronFromIndex] === undefined) this.synapsesDatas[s.neuronFromIndex] = [];
-                    this.synapsesDatas[s.neuronFromIndex][s.neuronToIndex] = s.weight;
-                })
-            });
-            console.log(this.synapsesDatas);
+            this.synapsesDatas = this.getSynapsesDatas(params.datas.neurons);
         } else {
             this.length = params.length || 10;
             this.createNeurons();
@@ -88,5 +82,17 @@ export class Layer {
             length: this.length,
             neurons: this.neurons.map(n => n.exportDatas())
         }
+    }
+
+    getSynapsesDatas(neuronsDatas) {
+        const output = [];
+        neuronsDatas.forEach(n => {
+            n.synapses.forEach(s => {
+                if (output[s.neuronFromIndex] === undefined) output[s.neuronFromIndex] = [];
+                output[s.neuronFromIndex][s.neuronToIndex] = s.weight;
+            })
+        });
+
+        return output;
     }
 }
