@@ -109,7 +109,7 @@ export class World {
     }
 
     getMinScore(type) {
-        return this.storage[type].reduce((a, b) => a.score < b.score ? a : b).score;
+        return this.storage[type].reduce((a, b) => a.score < b.score ? a : b, 0).score;
     }
 
     compareByScore(a, b) {
