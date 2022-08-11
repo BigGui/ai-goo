@@ -10,7 +10,7 @@ export class Neuron {
         this.isOutput = false;
         this.initialize();
 
-        if (params && params.datas) {
+        if (params && params.datas && !this.dice(100)) {
             this.act.a = params.datas.activation.a;
             this.act.b = params.datas.activation.b;
         } else {
@@ -24,6 +24,10 @@ export class Neuron {
         this.error = null;
         this.backpropErrors = null;
         this.totalSynapses = null;
+    }
+
+    dice(nb) {
+        return (Math.random()*nb) <= 1;
     }
 
     setRandomActivation() {
