@@ -5,10 +5,7 @@ export class World {
     constructor(nbHunters, nbPreys) {
         this.goos = [];
         this.createPopulation(nbHunters, nbPreys);
-        this.storage = {
-            Hunter: [],
-            Prey: []
-        };
+        this.initStorage();
     }
 
     createPopulation(nbHunters, nbPreys) {
@@ -93,12 +90,27 @@ export class World {
     addToStorage(gooDatas) {
         this.storage[gooDatas.type].push(gooDatas);
         this.storage[gooDatas.type].sort(this.compareByAge);
-        this.storage[gooDatas.type] = this.storage[gooDatas.type].slice(0, 4);
-        console.log(gooDatas.type, this.storage[gooDatas.type].map(g => g.age));
+        this.storage[gooDatas.type] = this.storage[gooDatas.type].slice(0, 10);
+        // console.log(gooDatas.type, this.storage[gooDatas.type].map(g => g.age));
+        this.updateLocalStorage();
     }
 
     compareByAge(a, b) {
         return b.age - a.age;
+    }
+
+    updateLocalStorage() {
+        localStorage.setItem("ai-goo-storage", JSON.stringify(this.storage));
+    }
+
+    initStorage() {
+        this.storage = JSON.parse(localStorage.getItem("ai-goo-storage"));
+        if (!this.storage) {
+            this.storage = {
+                Hunter: [],
+                Prey: []    
+            };
+        }
     }
 
 }
