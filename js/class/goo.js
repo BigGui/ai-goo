@@ -3,7 +3,6 @@ import { Brain } from "./brain.js";
 export class Goo {
     constructor(params) {
         this.world = params.world || null;
-        this.brain = new Brain();
         this.element = null;
         this.color = [0, 0, 0];
         this.position = this.getRandomPosition();
@@ -17,10 +16,16 @@ export class Goo {
         this.acuity = 10;
         const d = new Date();
         this.lastClone = d.getTime();
-        this.increaseSpeed = .05;
-        this.decreaseSpeed = .2;
         this.direction = 0
         this.birth = new Date();
+        
+        if (params.datas) {
+            this.importDatas(params.datas);
+            this.brain = new Brain({datas: params.datas.brain});
+            return;
+        }
+
+        this.brain = new Brain();
     } 
 
     getType() {
@@ -309,9 +314,9 @@ export class Goo {
 
     importDatas(datas) {
         this.color = datas.color;
+        this.displayColor();
         this.acuity = datas.acuity;
         this.increaseSpeed = datas.increaseSpeed;
         this.decreaseSpeed = datas.decreaseSpeed;
-        this.brain.importDatas(datas.brain);
     }
 }
