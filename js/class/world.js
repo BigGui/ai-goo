@@ -4,17 +4,42 @@ import { Prey } from './prey.js';
 export class World {
     constructor(nbHunters, nbPreys) {
         this.goos = [];
-        this.createPopulation(nbHunters, nbPreys);
         this.initStorage();
+        this.createPopulation(nbHunters, nbPreys);
     }
 
     createPopulation(nbHunters, nbPreys) {
-        for (let i = 0; i < nbHunters; i++) {
-            this.goos.push(new Hunter({world: this}));
+        this.createGooPopulation("Hunter", nbHunters);
+        this.createGooPopulation("Prey", nbPreys);
+        // for (let i = 0; i < nbHunters; i++) {
+        //     this.goos.push(new Hunter({world: this}));
+        // }
+        // for (let i = 0; i < nbPreys; i++) {
+        //     this.goos.push(new Prey({world: this}));
+        // }
+    }
+
+    createGooPopulation(type, nb) {
+        for (let i = 0; i < nb; i++) {
+            if (this.storage[type].length > 0) this.goos.push(this.getNewGooFromDatas(type));
+            else if (type === "Hunter") this.goos.push(new Hunter({world: this}));
+            else if (type === "Prey") this.goos.push(new Prey({world: this}));
         }
-        for (let i = 0; i < nbPreys; i++) {
-            this.goos.push(new Prey({world: this}));
-        }
+    }
+    
+    getNewGooFromDatas(type) {
+        let goo;
+        if (type === "Hunter") goo = new Hunter({world: this});
+        else if (type === "Prey") goo = new Prey({world: this});
+
+        goo.importDatas(this.getRandomDataFromStorage(type));
+
+        return goo;
+    }
+
+    getRandomDataFromStorage(type) {
+        const i = parseInt(this.storage[type].length * Math.random());
+        return this.storage[type][i];
     }
 
     async run() {

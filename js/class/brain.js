@@ -127,4 +127,8 @@ export class Brain {
         }
     }
 
+    importDatas(datas) {
+        return;
+    }
+
 }

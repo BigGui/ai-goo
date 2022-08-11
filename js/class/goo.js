@@ -306,4 +306,12 @@ export class Goo {
             age: this.getAge()
         }
     }
+
+    importDatas(datas) {
+        this.color = datas.color;
+        this.acuity = datas.acuity;
+        this.increaseSpeed = datas.increaseSpeed;
+        this.decreaseSpeed = datas.decreaseSpeed;
+        this.brain.importDatas(datas.brain);
+    }
 }
