@@ -19,7 +19,9 @@ export class Prey extends Goo {
     }
 
     async decideMove() {
-        const intention = await this.brain.askAnswer(this.getInput());
+        let x, y;
+        [x, y, this.voice] = await this.brain.askAnswer(this.getInput());
+        const intention = [x, y];
         this.move(intention);
 
         const hunters = this.getGoosAroundMe(this.acuity, "Hunter").sort((a, b) => {
@@ -30,16 +32,17 @@ export class Prey extends Goo {
             await this.learnToRunAwayHunter(hunters[0]);
         }
         else if (this.movement[0] != intention[0] || this.movement[1] != intention[1] ) {
-            await this.brain.learn(this.moveToLearnIfStucked(intention));
+            await this.brain.learn([...this.moveToLearnIfStucked(intention), this.expectedVoice]);
         }
 
         if (this.isStatic() && this.isInACorner()) return this.decreaseMore();
         if (this.isStatic()) return this.decrease();
         this.increase();
+
     }
 
     async learnToRunAwayHunter(hunter) {
-        await this.brain.learn(this.getMoveToRunAwayHunter(hunter));
+        await this.brain.learn([...this.getMoveToRunAwayHunter(hunter), this.expectedVoice]);
     }
     
     getMoveToRunAwayHunter(hunter) {

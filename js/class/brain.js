@@ -9,17 +9,16 @@ export class Brain {
                     length: l.length,
                     datas: l
                 }));
-
             });
         }
         else {
             this.layers = [
-                new Layer({length:24}),
-                new Layer({length:18}),
+                new Layer({length:25}),
+                new Layer({length:20}),
+                new Layer({length:12}),
                 new Layer({length:10}),
                 new Layer({length:8}),
-                new Layer({length:6}),
-                new Layer({length:2})
+                new Layer({length:3})
             ];
         }
 

@@ -20,6 +20,8 @@ export class Goo {
         this.direction = 0
         this.birth = new Date();
         this.childrenNb = 0;
+        this.voice = 0;
+        this.expectedVoice = 0;
         
         if (params.datas) {
             this.importDatas(params.datas);
@@ -153,11 +155,17 @@ export class Goo {
     }
 
     getInput() {
-        return [this.size, ...this.movement, ...this.lastMove, ...this.position.map(x => x/100), this.direction, ...this.eyes];
+        return [this.size, ...this.movement, ...this.lastMove, ...this.position.map(x => x/100), this.direction, ...this.eyes, this.getVoiceFromNearestGoo()];
     }
 
     async lookAround() {
-        this.eyes = [...this.lookAroundForType("Prey"), ...this.lookAroundForType("Hunter")];
+        const preysView = this.lookAroundForType("Prey");
+        const huntersView = this.lookAroundForType("Hunter");
+
+        if (this.getType() === "Hunter") this.expectedVoice = preysView.reduce((a, b) => a + b);
+        if (this.getType() === "Prey") this.expectedVoice = huntersView.reduce((a, b) => a + b);
+        
+        this.eyes = [...preysView, ...huntersView];
         return this.eyes;
     }
 
@@ -225,6 +233,15 @@ export class Goo {
 
     isAngleBetween(angle, min, max) {
         return this.normalizeAngle(angle - min) <= this.normalizeAngle(max - min);
+    }
+
+    getVoiceFromNearestGoo() {
+        const goosToHear = this.getGoosAroundMe(this.acuity, this.getType()).sort((a, b) => {
+            return this.getDistanceFromPos(a.getPosition()) - this.getDistanceFromPos(b.getPosition());
+        });
+        const hear = goosToHear.length > 0 ? goosToHear[0].voice : 0;
+        // console.log(this.getType(), hear);
+        return hear;
     }
 
     getRandomColor() {
