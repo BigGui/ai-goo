@@ -5,15 +5,15 @@ export class Goo {
         this.world = params.world || null;
         this.id = this.world.getNewGooId();
         this.element = null;
-        this.color = [0, 0, 0];
+        this.color = params.color || this.getRandomColor();
         this.prevPosition = [0, 0];
-        this.position = this.getRandomPosition();
+        this.position = params.position || this.getRandomPosition();
         this.createDomElement();
         this.updatePosition();
         this.lastMove = [0, 0];
         this.movement = [0, 0];
         this.eyes = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-        this.size = 3;
+        this.size = params.size || 3;
         this.isAlive = true;
         this.acuity = 10;
         const d = new Date();
@@ -33,7 +33,7 @@ export class Goo {
             return;
         }
 
-        this.brain = new Brain();
+        this.brain = params.brain || new Brain();
     } 
 
     getType() {
@@ -91,7 +91,7 @@ export class Goo {
         this.element.classList.add("goo")
         this.element.classList.add(this.getType().toLowerCase())
         document.getElementById("world").appendChild(this.element);
-        this.getRandomColor();
+        this.displayColor();
     }
 
     getPosition() {
@@ -251,8 +251,7 @@ export class Goo {
     }
 
     getRandomColor() {
-        this.color = this.color.map(c => this.getRandomColorVal());
-        this.displayColor();
+        return [0, 0, 0].map(c => this.getRandomColorVal());
     }
 
     displayColor() {
@@ -263,13 +262,12 @@ export class Goo {
         return parseInt(Math.random()*256);
     }
 
-    changeColorRandom() {
-        this.color = this.color.map(c => {
+    getRandomColorFromMine() {
+        return this.color.map(c => {
             c += this.getMoreOrLess();
             if (c < 0) return 256 + c;
             return c%256;
         });
-        this.displayColor();
     }
 
     getMoreOrLess() {
@@ -311,20 +309,20 @@ export class Goo {
     }
 
     getCopy() {
-        const copy = this.getNew({world: this.world});
-
-        this.childrenNb++;
-
         const d = new Date();
         this.lastClone = d.getTime();
-        copy.color = this.color;
-        copy.changeColorRandom();
         this.size /= 2;
-        copy.size = this.size;
-        copy.setPosition(this.position.map(x => this.normalizePosition(x + Math.random() * 8 - 4)));
-        copy.brain = this.brain.getCopy();
+        this.childrenNb++;
 
-        return copy;
+        const params = {
+            world: this.world,
+            color: this.getRandomColorFromMine(),
+            size: this.size,
+            position: this.position.map(x => this.normalizePosition(x + Math.random() * 8 - 4)),
+            brain: this.brain.getCopy()
+        };
+
+        return this.getNew(params);
     }
 
     exportDatas() {
