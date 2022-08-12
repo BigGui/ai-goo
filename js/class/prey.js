@@ -40,7 +40,6 @@ export class Prey extends Goo {
         if (this.isStatic() && this.isInACorner()) return this.decreaseMore();
         if (this.isStatic()) return this.decrease();
         this.increase();
-
     }
 
     async learnToRunAwayHunter(hunter) {

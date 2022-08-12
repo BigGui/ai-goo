@@ -296,10 +296,6 @@ export class Goo {
         return this.position.map(x => [0, 100].includes(x)).reduce((a, b) => a && b);
     }
 
-    moveToCenter() {
-        return this.position.map(x => Math.max(Math.min(50 - x, 2), -2));
-    }
-
     configCopy(copy) {
         const d = new Date();
         this.lastClone = d.getTime();
@@ -324,18 +320,6 @@ export class Goo {
         if (this.size < 6 || d.getTime() - this.lastClone  < 2000 || this.world.isFull()) return;
         
         this.world.addGoo(this.getCopy());
-    }
-
-    async runAway() {
-        await this.brain.learn(this.getOpositeMove());
-    }
-
-    getOpositeMove() {
-        return this.lastMove.map((v, i) => {
-            if (this.position[i] === 0) return Math.abs(v) + Math.random();
-            if (this.position[i] === 100) return (Math.abs(v) + Math.random()) * -1;
-            return v + (Math.random() * (v / Math.abs(v))) || 0;
-        });
     }
 
     exportDatas() {
