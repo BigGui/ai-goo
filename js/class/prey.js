@@ -24,7 +24,7 @@ export class Prey extends Goo {
         const intention = [x, y];
         this.move(intention);
 
-        const hunters = this.getGoosAroundMe(this.acuity, "Hunter").sort((a, b) => {
+        const hunters = this.getGoosAroundMe("Hunter").sort((a, b) => {
             return this.getDistanceFromPos(a.getPosition()) - this.getDistanceFromPos(b.getPosition());
         });
         

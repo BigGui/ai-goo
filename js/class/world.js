@@ -73,10 +73,6 @@ export class World {
         this.goos = this.goos.filter(g => g.isAlive);
     }
 
-    getGoosAround(pos, distance) {
-        return this.goos.filter(g => g.getDistanceFromPos(pos) < distance);
-    }
-
     addChart(nbHunters, nbPreys) {
         this.addChartHunters(nbHunters);
         this.addChartPreys(nbPreys);

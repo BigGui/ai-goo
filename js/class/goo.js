@@ -177,7 +177,7 @@ export class Goo {
 
     lookAroundForType(type) {
         const eyes = [0, 0, 0, 0, 0, 0, 0, 0];
-        const posList = this.getGoosAroundMe(this.acuity, type).map(g => g.getPosition());
+        const posList = this.getGoosAroundMe(type).map(g => g.getPosition());
     
         if (posList.length === 0) return eyes;
 
@@ -194,14 +194,12 @@ export class Goo {
         return eyes;
     }
 
-    getGoosAroundMe(distance, type) {
-        const goos = this.world.getGoosAround(this.getPosition(), distance).filter(g => g !== this && g.isAlive);
-        if (type === undefined) return goos;
-        return goos.filter(g => g.getType() === type);
+    getGoosAroundMe(type) {
+        return this.world.goos.filter(g => g !== this && g.isAlive && (g.getType() === type || type === undefined) && this.getDistanceFromPos(g.getPosition()) < this.acuity);
     }
 
     getDistanceFromPos(pos) {
-        return Math.sqrt(Math.pow(this.position[0] - pos[0], 2) + Math.pow(this.position[1] - pos[1], 2));
+        return Math.hypot(...this.position.map((a, i) => a - pos[i]));
     }
 
     getAngleFromPos(pos) {
@@ -242,11 +240,10 @@ export class Goo {
     }
 
     getVoiceFromNearestGoo() {
-        const goosToHear = this.getGoosAroundMe(this.acuity, this.getType()).sort((a, b) => {
+        const goosToHear = this.getGoosAroundMe(this.getType()).sort((a, b) => {
             return this.getDistanceFromPos(a.getPosition()) - this.getDistanceFromPos(b.getPosition());
         });
         const hear = goosToHear.length > 0 ? goosToHear[0].voice : 0;
-        // console.log(this.getType(), hear);
         return hear;
     }
 
