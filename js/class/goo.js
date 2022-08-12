@@ -40,6 +40,12 @@ export class Goo {
         return parseInt((new Date() - this.birth) / 1000);
     }
 
+    async execute() {
+        await this.lookAround();
+        await this.decideMove();
+        this.cloneOrDieIfNecessary();
+    }
+
     kill() {
         this.isAlive = false;
         this.element.remove();

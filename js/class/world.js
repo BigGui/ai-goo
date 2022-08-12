@@ -28,16 +28,30 @@ export class World {
 
     async run() {
         this.begining = new Date();
-        const timer = setInterval(() => {
-            this.displayNbOfGoos();
-            this.goos.forEach(async (g, i) => {
-                await g.lookAround();
-                await g.decideMove();
-                g.cloneOrDieIfNecessary();
-            });
-            this.updateTime();
+
+        // await this.executeRound();
+        const timer = setInterval(async () => {
             if (this.goos.length == 0) clearInterval(timer);
+
+            this.displayNbOfGoos();
+            this.updateTime();
+            return await this.executeAllGoos();
         }, 50)
+    }
+
+    // async executeRound() {
+    //     if (this.goos.length == 0) return;
+    //     this.displayNbOfGoos();
+    //     this.updateTime();
+    //     await this.executeAllGoos();
+
+    //     return await this.executeRound();
+    // }
+
+    async executeAllGoos() {
+        for (let goo of this.goos) {
+            await goo.execute();
+        }
     }
 
     displayNbOfGoos() {
