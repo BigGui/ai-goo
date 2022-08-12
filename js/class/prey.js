@@ -28,7 +28,7 @@ export class Prey extends Goo {
 
         this.expectedVoice = hunters.length;
         
-        if (hunters.length > 0 && this.getDistanceFromPos(hunters[0]) < this.acuity / 2) {
+        if (hunters.length > 0 && this.getDistanceFromGoo(hunters[0]) < this.acuity / 2) {
             await this.learnToRunAwayHunter(hunters[0]);
         }
         else if (this.movement[0] != intention[0] || this.movement[1] != intention[1] ) {
