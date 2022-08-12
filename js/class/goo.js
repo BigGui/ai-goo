@@ -3,6 +3,7 @@ import { Brain } from "./brain.js";
 export class Goo {
     constructor(params) {
         this.world = params.world || null;
+        this.id = this.world.getNewGooId();
         this.element = null;
         this.color = [0, 0, 0];
         this.prevPosition = [0, 0];
@@ -24,6 +25,7 @@ export class Goo {
         this.expectedVoice = 0;
         this.preysAround = [];
         this.huntersAround = [];
+        this.gooDistances = {};
         
         if (params.datas) {
             this.importDatas(params.datas);
@@ -43,6 +45,7 @@ export class Goo {
     }
 
     async execute() {
+        this.gooDistances = {};
         await this.lookAround();
         await this.decideMove();
         this.cloneOrDieIfNecessary();
@@ -105,10 +108,6 @@ export class Goo {
         this.element.style.top = `${this.position[1]}%`;
     }
 
-    isPositionAvailable(position) {
-        return this.world.goos.filter(g => g.isInMyBody(position) && g !== this).length === 0;
-    }
-
     move(m) {
         this.prevPosition = [...this.position];
         this.lastMove = [...this.movement];
@@ -118,14 +117,14 @@ export class Goo {
             this.normalizeMovement(this.movement[1] + m[1], this.position[1])
         ];
 
-        this.position = this.getNewPosition(this.movement);
+        this.setNewPosition(this.movement);
 
         this.updateEyesDirection(this.getDirection(this.movement));
         this.updatePosition();
     }
 
-    getNewPosition(movement) {
-        return this.position.map((x, i) => this.normalizePosition(x + movement[i]));
+    setNewPosition(movement) {
+        this.position = this.position.map((x, i) => this.normalizePosition(x + movement[i]));
     }
 
     getDirection(move) {
@@ -169,7 +168,7 @@ export class Goo {
     async lookAround() {
         this.preysAround = this.getGoosAroundMe("Prey");
         this.huntersAround = this.getGoosAroundMe("Hunter");
-        
+
         this.eyes = [...this.lookAroundFromGoosList(this.preysAround), ...this.lookAroundFromGoosList(this.huntersAround)];
         return this.eyes;
     }
@@ -180,19 +179,26 @@ export class Goo {
 
         const views = this.getViewAngles();
 
-        goos.map(g => g.getPosition()).forEach(pos => {
-            const a = this.getAngleFromPos(pos);
+        goos.forEach(goo => {
+            const a = this.getAngleFromPos(goo.getPosition());
             if (!this.isAngleBetween(a, views[0], views[7])) return;
             const i = this.getIndexFromAngleViews(a, views);
             if (eyes[i] === undefined) return;
-            eyes[i] += 1 - (this.getDistanceFromPos(pos) / this.acuity);
+            eyes[i] += 1 - (this.getDistanceFromGoo(goo) / this.acuity);
         });
 
         return eyes;
     }
 
     getGoosAroundMe(type) {
-        return this.world.goos.filter(g => g !== this && g.isAlive && (g.getType() === type || type === undefined) && this.getDistanceFromPos(g.getPosition()) < this.acuity);
+        return this.world.goos.filter(g => g !== this && g.isAlive && (g.getType() === type || type === undefined) && this.getDistanceFromGoo(g) < this.acuity);
+    }
+
+    getDistanceFromGoo(goo) {
+        if (this.gooDistances[goo.id] !== undefined) return this.gooDistances[goo.id];
+
+        this.gooDistances[goo.id] = this.getDistanceFromPos(goo.getPosition());
+        return this.getDistanceFromGoo(goo);
     }
 
     getDistanceFromPos(pos) {
@@ -238,7 +244,7 @@ export class Goo {
 
     getVoiceFromNearestGoo() {
         const goosToHear = this.getGoosAroundMe(this.getType()).sort((a, b) => {
-            return this.getDistanceFromPos(a.getPosition()) - this.getDistanceFromPos(b.getPosition());
+            return this.getDistanceFromGoo(a) - this.getDistanceFromGoo(b);
         });
         const hear = goosToHear.length > 0 ? goosToHear[0].voice : 0;
         return hear;
@@ -318,10 +324,6 @@ export class Goo {
         if (this.size < 6 || d.getTime() - this.lastClone  < 2000 || this.world.isFull()) return;
         
         this.world.addGoo(this.getCopy());
-    }
-
-    isInMyBody(position) {
-        return this.getDistanceFromPos(position) < this.size / 2;
     }
 
     async runAway() {

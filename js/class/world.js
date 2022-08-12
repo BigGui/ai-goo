@@ -4,6 +4,7 @@ import { Prey } from './prey.js';
 export class World {
     constructor(nbHunters, nbPreys) {
         this.goos = [];
+        this.idCounter = 1;
         this.initStorage();
         this.createPopulation(nbHunters, nbPreys);
         this.begining = 0;
@@ -24,6 +25,11 @@ export class World {
             if (type === "Hunter") this.goos.push(new Hunter(params));
             else if (type === "Prey") this.goos.push(new Prey(params));
         }
+    }
+
+    getNewGooId() {
+        this.idCounter++;
+        return this.idCounter;
     }
 
     async run() {

@@ -28,7 +28,7 @@ export class Hunter extends Goo {
                 return this.isAngleBetween(this.getAngleFromPos(g.getPosition()), this.viewAngleRange[0], this.viewAngleRange[1])
             })
             .sort((a, b) => {
-                return this.getDistanceFromPos(a.getPosition()) - this.getDistanceFromPos(b.getPosition());
+                return this.getDistanceFromGoo(a) - this.getDistanceFromGoo(b);
             });
 
         this.expectedVoice = preys.length;
@@ -36,7 +36,7 @@ export class Hunter extends Goo {
         if (preys.length > 0) {
             await this.learnToFollowPrey(preys[0]);
 
-            if (this.getDistanceFromPos(preys[0].getPosition()) < (this.size + preys[0].size)/2) {
+            if (this.getDistanceFromGoo(preys[0]) < (this.size + preys[0].size)/2) {
                 return this.eatPrey(preys[0]);
             }
         }
