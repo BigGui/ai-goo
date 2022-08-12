@@ -303,7 +303,7 @@ export class Goo {
         }
 
         const d = new Date();
-        if (this.size < 6 || d.getTime() - this.lastClone  < 2000 || this.world.isFull()) return;
+        if (this.size < 6 || d.getTime() - this.lastClone < 2000 || this.world.isFull()) return;
         
         this.world.addGoo(this.getCopy());
     }
@@ -318,11 +318,15 @@ export class Goo {
             world: this.world,
             color: this.getRandomColorFromMine(),
             size: this.size,
-            position: this.position.map(x => this.normalizePosition(x + Math.random() * 8 - 4)),
+            position: this.getRandomPositionFromMine(),
             brain: this.brain.getCopy()
         };
 
         return this.getNew(params);
+    }
+
+    getRandomPositionFromMine() {
+        return this.position.map(x => this.normalizePosition(x + Math.random() * 8 - 4));
     }
 
     exportDatas() {
