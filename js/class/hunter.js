@@ -11,10 +11,9 @@ export class Hunter extends Goo {
         this.viewAngle = 90;
         this.viewAngleRange = [0, 0];
     }
-    getCopy() {
-        const copy = new Hunter({world: this.world});
-        this.childrenNb++;
-        return this.configCopy(copy);
+
+    getNew(params) {
+        return new Hunter(params);
     }
 
     async decideMove() {

@@ -12,10 +12,8 @@ export class Prey extends Goo {
         this.viewAngleRange = [0, 0];
     }
 
-    getCopy() {
-        const copy = new Prey({world: this.world});
-        this.childrenNb++;
-        return this.configCopy(copy);
+    getNew(params) {
+        return new Prey(params);
     }
 
     async decideMove() {
