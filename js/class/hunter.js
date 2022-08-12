@@ -23,7 +23,7 @@ export class Hunter extends Goo {
         const intention = [x, y];
         this.move(intention);
 
-        const preys = this.getGoosAroundMe("Prey")
+        const preys = this.preysAround
             .filter(g => {
                 return this.isAngleBetween(this.getAngleFromPos(g.getPosition()), this.viewAngleRange[0], this.viewAngleRange[1])
             })
@@ -31,6 +31,7 @@ export class Hunter extends Goo {
                 return this.getDistanceFromPos(a.getPosition()) - this.getDistanceFromPos(b.getPosition());
             });
 
+        this.expectedVoice = preys.length;
 
         if (preys.length > 0) {
             await this.learnToFollowPrey(preys[0]);

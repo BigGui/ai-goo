@@ -22,6 +22,8 @@ export class Goo {
         this.childrenNb = 0;
         this.voice = 0;
         this.expectedVoice = 0;
+        this.preysAround = [];
+        this.huntersAround = [];
         
         if (params.datas) {
             this.importDatas(params.datas);
@@ -165,25 +167,20 @@ export class Goo {
     }
 
     async lookAround() {
-        const preysView = this.lookAroundForType("Prey");
-        const huntersView = this.lookAroundForType("Hunter");
-
-        if (this.getType() === "Hunter") this.expectedVoice = preysView.reduce((a, b) => a + b);
-        if (this.getType() === "Prey") this.expectedVoice = huntersView.reduce((a, b) => a + b);
+        this.preysAround = this.getGoosAroundMe("Prey");
+        this.huntersAround = this.getGoosAroundMe("Hunter");
         
-        this.eyes = [...preysView, ...huntersView];
+        this.eyes = [...this.lookAroundFromGoosList(this.preysAround), ...this.lookAroundFromGoosList(this.huntersAround)];
         return this.eyes;
     }
 
-    lookAroundForType(type) {
+    lookAroundFromGoosList(goos) {
         const eyes = [0, 0, 0, 0, 0, 0, 0, 0];
-        const posList = this.getGoosAroundMe(type).map(g => g.getPosition());
-    
-        if (posList.length === 0) return eyes;
+        if (goos.length === 0) return eyes;
 
         const views = this.getViewAngles();
 
-        posList.forEach(pos => {
+        goos.map(g => g.getPosition()).forEach(pos => {
             const a = this.getAngleFromPos(pos);
             if (!this.isAngleBetween(a, views[0], views[7])) return;
             const i = this.getIndexFromAngleViews(a, views);
