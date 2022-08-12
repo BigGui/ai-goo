@@ -43,7 +43,8 @@ export class Hunter extends Goo {
         else if (this.movement[0] != intention[0] || this.movement[1] != intention[1] ) {
             await this.brain.learn([...this.moveToLearnIfStucked(intention), this.expectedVoice]);
         }
-
+        
+        if (this.isStatic() && this.isInACorner()) return this.decreaseMore();
         return this.decrease();
     }
 
